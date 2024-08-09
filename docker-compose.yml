@@ -1,10 +1,10 @@
-version: '2'
+version: '3.8'
 
 services:
   kafka-broker:
     image: confluentinc/cp-server:7.5.0
     hostname: broker
-    container_name: kafka-broker
+    container_name: test-kafka-broker
     ports:
       - "9092:9092"
       - "9101:9101"
@@ -34,13 +34,11 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
       KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
       CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
-    networks:
-      - stock-network
 
   kafka-schema-registry:
     image: confluentinc/cp-schema-registry:7.5.0
     hostname: schema-registry
-    container_name: kafka-schema-registry
+    container_name: test-kafka-schema-registry
     depends_on:
       - kafka-broker
     ports:
@@ -49,13 +47,11 @@ services:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'broker:29092'
       SCHEMA_REGISTRY_LISTENERS: http://schema-registry:8081
-    networks:
-      - stock-network
 
   kafka-connect:
     image: cnfldemos/cp-server-connect-datagen:0.6.2-7.5.0
     hostname: connect
-    container_name: kafka-connect
+    container_name: test-kafka-connect
     depends_on:
       - kafka-broker
       - kafka-schema-registry
@@ -83,58 +79,34 @@ services:
       CONNECT_LOG4J_LOGGERS: org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR
     volumes: 
       - ./stream-processing/plugins:/etc/kafka-connect/jars
-    networks:
-      - stock-network
 
-  namenode:
-    image: apache/hadoop:3
-    hostname: namenode
-    volumes:
-      - C:/Data:/data
-    ports:
-      - 9870:9870
-    env_file:
-      - ./config
-    environment:
-      ENSURE_NAMENODE_DIR: "/tmp/hadoop-root/dfs/name"
-    command: ["hdfs", "namenode"]
+#   hadoop-namenode:
+#     image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+#     container_name: hadoop-namenode
+#     ports:
+#       - "9870:9870" # Web UI
+#       - "9000:9000" # RPC for DataNode
+#     environment:
+#       - CLUSTER_NAME=hadoop-cluster
+#       - CORE_CONF_fs_defaultFS=hdfs://hadoop-namenode:9000
+#       - CLUSTER_NAME=test
+#     volumes:
+#       - hadoop_namenode:/hadoop/dfs/name
+#     networks:
+#       - stock-network
 
-  datanode_1:
-    image: apache/hadoop:3
-    command: [ "hdfs", "datanode" ]
-    env_file:
-      - ./config
+#   hadoop-datanode:
+#     image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+#     container_name: hadoop-datanode
+#     depends_on:
+#       - hadoop-namenode
+#     environment:
+#       - CORE_CONF_fs_defaultFS=hdfs://hadoop-namenode:9000
+#     volumes:
+#       - hadoop_datanode:/hadoop/dfs/data
+#     networks:
+#       - stock-network
 
-  datanode_2:
-    image: apache/hadoop:3
-    command: [ "hdfs", "datanode" ]
-    env_file:
-      - ./config
-
-  resourcemanager:
-    image: apache/hadoop:3
-    hostname: resourcemanager
-    command: [ "yarn", "resourcemanager" ]
-    ports:
-      - 8088:8088
-    env_file:
-      - ./config
-    volumes:
-      - ./test.sh:/opt/test.sh
-
-  nodemanager:
-    image: apache/hadoop:3
-    command: [ "yarn", "nodemanager" ]
-    env_file:
-      - ./config
-
-  firefox:
-    image: jlesage/firefox
-    hostname: firefox
-    ports:
-      - 5800:5800
-
-networks:
-  stock-network:
-    external: true
-    name: stock-network
+# volumes:
+#   hadoop_namenode:
+#   hadoop_datanode:
