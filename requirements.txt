@@ -1,0 +1,4 @@
+confluent_kafka==2.5.0
+pyspark==3.2.1
+python-dotenv==1.0.1
+avro-python3==1.10.2

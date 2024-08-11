@@ -4,7 +4,6 @@ services:
   kafka-broker:
     image: confluentinc/cp-server:7.5.0
     hostname: broker
-    container_name: test-kafka-broker
     ports:
       - "9092:9092"
       - "9101:9101"
@@ -38,7 +37,6 @@ services:
   kafka-schema-registry:
     image: confluentinc/cp-schema-registry:7.5.0
     hostname: schema-registry
-    container_name: test-kafka-schema-registry
     depends_on:
       - kafka-broker
     ports:
@@ -51,7 +49,6 @@ services:
   kafka-connect:
     image: cnfldemos/cp-server-connect-datagen:0.6.2-7.5.0
     hostname: connect
-    container_name: test-kafka-connect
     depends_on:
       - kafka-broker
       - kafka-schema-registry
@@ -80,33 +77,120 @@ services:
     volumes: 
       - ./stream-processing/plugins:/etc/kafka-connect/jars
 
-#   hadoop-namenode:
-#     image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
-#     container_name: hadoop-namenode
-#     ports:
-#       - "9870:9870" # Web UI
-#       - "9000:9000" # RPC for DataNode
-#     environment:
-#       - CLUSTER_NAME=hadoop-cluster
-#       - CORE_CONF_fs_defaultFS=hdfs://hadoop-namenode:9000
-#       - CLUSTER_NAME=test
-#     volumes:
-#       - hadoop_namenode:/hadoop/dfs/name
-#     networks:
-#       - stock-network
+####################### SPARK SETUP #######################
 
-#   hadoop-datanode:
-#     image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
-#     container_name: hadoop-datanode
-#     depends_on:
-#       - hadoop-namenode
-#     environment:
-#       - CORE_CONF_fs_defaultFS=hdfs://hadoop-namenode:9000
-#     volumes:
-#       - hadoop_datanode:/hadoop/dfs/data
-#     networks:
-#       - stock-network
+  spark-master:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    user: root
+    ports:
+      - '8080:8080'
+      - '7077:7077'
+      - '4040:4040'
+    volumes:
+      - ./scripts:/opt/bitnami/spark/scripts
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 5s
 
-# volumes:
-#   hadoop_namenode:
-#   hadoop_datanode:
+  spark-worker1:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_MEMORY=2G
+      - SPARK_WORKER_CORES=2
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    user: root
+    ports:
+      - '8082:8080'
+      - '4041:4040'
+    depends_on:
+      spark-master:
+        condition: service_healthy
+
+  spark-worker2:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_MEMORY=2G
+      - SPARK_WORKER_CORES=2
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    user: root
+    ports:
+      - '8084:8080'
+      - '4042:4040'
+    depends_on:
+      spark-master:
+        condition: service_healthy
+
+####################### HADOOP SETUP #######################
+
+  namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    ports:
+      - 9870:9870
+      - 9010:9000
+    volumes:
+      - ./hadoop_namenode:/hadoop/dfs/name
+    environment:
+      - CLUSTER_NAME=test
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+    env_file:
+      - ./hadoop.env
+
+  datanode:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    volumes:
+      - ./hadoop_datanode:/hadoop/dfs/data
+    environment:
+      SERVICE_PRECONDITION: "namenode:9870"
+      CORE_CONF_fs_defaultFS: hdfs://namenode:9000
+    ports:
+      - "9864:9864"
+    env_file:
+      - ./hadoop.env
+
+  resourcemanager:
+    image: bde2020/hadoop-resourcemanager:2.0.0-hadoop3.2.1-java8
+    environment:
+      SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode:9864"
+    env_file:
+      - ./hadoop.env
+
+  nodemanager1:
+    image: bde2020/hadoop-nodemanager:2.0.0-hadoop3.2.1-java8
+    environment:
+      SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode:9864 resourcemanager:8088"
+    env_file:
+      - ./hadoop.env
+
+  historyserver:
+    image: bde2020/hadoop-historyserver:2.0.0-hadoop3.2.1-java8
+    environment:
+      SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode:9864 resourcemanager:8088"
+    volumes:
+      - ./hadoop_historyserver:/hadoop/yarn/timeline
+    env_file:
+      - ./hadoop.env
