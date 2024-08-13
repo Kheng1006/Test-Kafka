@@ -2,3 +2,4 @@ myenv/*
 venv/*
 hadoop_*
 img/large files/*
+storage/*

@@ -6,7 +6,7 @@ import time
 
 load_dotenv()
 
-KAFKA_BROKER=os.getenv('KAFKA_BROKER')
+# KAFKA_BROKER=os.getenv('KAFKA_BROKER')
 KAFKA_TOPIC=os.getenv('KAFKA_TOPIC')
 DIR_IN=os.getenv('DIR_IN')
 SUPPORTED_IMG_TYPE=os.getenv('SUPPORTED_IMG_TYPE')
@@ -79,7 +79,7 @@ def process_video(file_path):
 
 if __name__ == '__main__':
     conf = {
-        'bootstrap.servers': KAFKA_BROKER,
+        'bootstrap.servers': "localhost:9092",
         'client.id': 'img-sender'
     }
     producer = Producer(conf)

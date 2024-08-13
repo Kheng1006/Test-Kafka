@@ -1,0 +1,8 @@
+If submitting the spark code results in error with CV2:
+	1. Access docker container via docker exec -it
+	2. Input the following cmds:
+	- apt-get install libgl1
+	- apt-get install libglib2.0-0
+
+For submitting spark code, run this 
+docker exec -it test-kafka-spark-master-1 spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.1,io.delta:delta-core_2.12:2.0.0 ./scripts/consumer_spark_minio.py

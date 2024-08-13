@@ -75,7 +75,7 @@ services:
       CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components,/etc/kafka-connect/jars"
       CONNECT_LOG4J_LOGGERS: org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR
     volumes: 
-      - ./stream-processing/plugins:/etc/kafka-connect/jars
+      - ./plugins:/etc/kafka-connect/jars
 
 ####################### SPARK SETUP #######################
 
@@ -194,3 +194,17 @@ services:
       - ./hadoop_historyserver:/hadoop/yarn/timeline
     env_file:
       - ./hadoop.env
+
+####################### HADOOP SETUP #######################
+
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ./storage:/data
+    environment:
+      MINIO_ROOT_USER: minio_user
+      MINIO_ROOT_PASSWORD: minio_password
+    command: server --console-address ":9001" /data
