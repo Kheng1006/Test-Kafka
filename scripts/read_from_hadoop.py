@@ -5,7 +5,7 @@ spark = SparkSession.builder \
     .getOrCreate()
 
 # Define the HDFS path to the Parquet file
-parquet_path = "hdfs://test-kafka-namenode-1:9000/output_test"
+parquet_path = "hdfs://demo-hadoop-namenode:9000/output_test"
 
 # Read the Parquet file
 df = spark.read.parquet(parquet_path)

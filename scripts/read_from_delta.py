@@ -6,7 +6,7 @@ spark = SparkSession.builder \
     .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog") \
     .getOrCreate()
 
-df = spark.read.format("delta").load("hdfs://test-kafka-namenode-1:9000/delta-lake/img-topic")
+df = spark.read.format("delta").load("hdfs://demo-hadoop-namenode:9000/delta-lake/img-topic")
 df.show()
 
 spark.stop()

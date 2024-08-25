@@ -1,5 +1,7 @@
 myenv/*
 venv/*
-hadoop_*
-img/large files/*
-storage/*
+hadoop/hadoop_*
+data/img/large files/*
+minio/storage/*
+scripts/.env
+spark/scripts/
