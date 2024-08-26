@@ -1,0 +1,73 @@
+services:
+  namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    hostname: demo-hadoop-namenode
+    container_name: demo-hadoop-namenode
+    ports:
+      - 9870:9870
+      - 9010:9000
+    volumes:
+      - ./hadoop_namenode:/hadoop/dfs/name
+    environment:
+      - CLUSTER_NAME=test
+      - CORE_CONF_fs_defaultFS=hdfs://demo-hadoop-namenode:9000
+    env_file:
+      - ./config/hadoop.env
+    networks:
+      - test-network
+
+  datanode1:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    hostname: demo-hadoop-datanode1
+    container_name: demo-hadoop-datanode1
+    volumes:
+      - ./hadoop_datanode:/hadoop/dfs/data
+    environment:
+      SERVICE_PRECONDITION: "demo-hadoop-namenode:9870"
+      CORE_CONF_fs_defaultFS: hdfs://demo-hadoop-namenode:9000
+    ports:
+      - "9864:9864"
+    env_file:
+      - ./config/hadoop.env
+    networks:
+      - test-network
+
+  resourcemanager:
+    image: bde2020/hadoop-resourcemanager:2.0.0-hadoop3.2.1-java8
+    hostname: demo-hadoop-resourcemanager
+    container_name: demo-hadoop-resourcemanager
+    environment:
+      SERVICE_PRECONDITION: "demo-hadoop-namenode:9000 demo-hadoop-namenode:9870 demo-hadoop-datanode1:9864"
+    env_file:
+      - ./config/hadoop.env
+    networks:
+      - test-network
+
+  nodemanager1:
+    image: bde2020/hadoop-nodemanager:2.0.0-hadoop3.2.1-java8
+    hostname: demo-hadoop-nodemanager1
+    container_name: demo-hadoop-nodemanager1
+    environment:
+      SERVICE_PRECONDITION: "demo-hadoop-namenode:9000 demo-hadoop-namenode:9870  demo-hadoop-resourcemanager:8088"
+    env_file:
+      - ./config/hadoop.env
+    networks:
+      - test-network
+
+  historyserver:
+    image: bde2020/hadoop-historyserver:2.0.0-hadoop3.2.1-java8
+    hostname: demo-hadoop-historyserver
+    container_name: demo-hadoop-historyserver
+    environment:
+      SERVICE_PRECONDITION: "demo-hadoop-namenode:9000 demo-hadoop-namenode:9870  demo-hadoop-resourcemanager:8088"
+    volumes:
+      - ./hadoop_historyserver:/hadoop/yarn/timeline
+    env_file:
+      - ./config/hadoop.env
+    networks:
+      - test-network
+
+networks:
+  test-network:
+    name: test-network
+    external: true
