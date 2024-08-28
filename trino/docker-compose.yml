@@ -4,7 +4,7 @@ services:
     hostname: demo-trino
     container_name: demo-trino
     ports:
-      - "8080:8080"
+      - "8090:8080"
     volumes:
       - ./docker/trino/etc:/usr/lib/trino/etc:ro
       - ./docker/trino/catalog:/etc/trino/catalog

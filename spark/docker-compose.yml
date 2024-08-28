@@ -18,6 +18,7 @@ services:
       - '4040:4040'
     volumes:
       - ./../scripts:/opt/bitnami/spark/scripts
+      - ./../data:/opt/bitnami/spark/data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s

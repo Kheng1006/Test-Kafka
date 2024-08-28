@@ -1,8 +1,8 @@
 services:
   postgres:
     image: postgres:13.16
-    hostname: hive-postgres
-    container_name: hive-postgres
+    hostname: demo-hive-postgres
+    container_name: demo-hive-postgres
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -27,13 +27,13 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    container_name: hive-metastore
-    hostname: hive-metastore
+    container_name: demo-hive-metastore
+    hostname: demo-hive-metastore
     environment:
       DB_DRIVER: postgres
       SERVICE_NAME: 'metastore'
       SERVICE_OPTS: '-Xmx1G -Djavax.jdo.option.ConnectionDriverName=org.postgresql.Driver
-                     -Djavax.jdo.option.ConnectionURL=jdbc:postgresql://hive-postgres:5432/${POSTGRES_DB}
+                     -Djavax.jdo.option.ConnectionURL=jdbc:postgresql://demo-hive-postgres:5432/${POSTGRES_DB}
                      -Djavax.jdo.option.ConnectionUserName=${POSTGRES_USER}
                      -Djavax.jdo.option.ConnectionPassword=${POSTGRES_PASSWORD}'
     ports:
@@ -55,11 +55,11 @@ services:
     depends_on:
       metastore:
         condition: service_healthy
-    container_name: hiveserver2
-    hostname: hiveserver2
+    container_name: demo-hiveserver2
+    hostname: demo-hiveserver2
     environment:
       HIVE_SERVER2_THRIFT_PORT: 10000
-      SERVICE_OPTS: '-Xmx1G -Dhive.metastore.uris=thrift://metastore:9083'
+      SERVICE_OPTS: '-Xmx1G -Dhive.metastore.uris=thrift://demo-hive-metastore:9083'
       IS_RESUME: 'true'
       SERVICE_NAME: 'hiveserver2'
     ports:
