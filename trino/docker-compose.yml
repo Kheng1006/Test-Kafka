@@ -1,0 +1,17 @@
+services: 
+  trino:
+    image: "trinodb/trino:454"
+    hostname: demo-trino
+    container_name: demo-trino
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./docker/trino/etc:/usr/lib/trino/etc:ro
+      - ./docker/trino/catalog:/etc/trino/catalog
+    networks:
+      - test-network
+
+networks:
+  test-network:
+    name: test-network
+    external: true
