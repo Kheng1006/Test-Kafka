@@ -6,8 +6,8 @@ services:
     ports:
       - "8090:8080"
     volumes:
-      - ./docker/trino/etc:/usr/lib/trino/etc:ro
-      - ./docker/trino/catalog:/etc/trino/catalog
+      - ./config/etc:/usr/lib/trino/etc:ro
+      - ./config/catalog:/etc/trino/catalog
     networks:
       - test-network
 
