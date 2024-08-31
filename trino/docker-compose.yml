@@ -8,6 +8,9 @@ services:
     volumes:
       - ./config/etc:/usr/lib/trino/etc:ro
       - ./config/catalog:/etc/trino/catalog
+    environment:
+      - HTTP_SERVER_AUTHENTICATION_TYPE=PASSWORD
+      - HTTP_SERVER_AUTHENTICATION_PASSWORD_AUTHENTICATOR=org.apache.trino.server.security.PasswordAuthenticator
     networks:
       - test-network
 

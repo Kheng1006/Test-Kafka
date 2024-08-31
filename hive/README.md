@@ -5,7 +5,7 @@ NOTE: If you already create the network while starting an another service, you c
 	- POSTGRES_DB: name of postgres database for storing hive data
 	- POSTGRES_USER: name of postgres user 
 	- POSTGRES_PASSWORD: password for postgres user
-2. Create the custom-network network
+2. Create the test-network network
 ```
 make network
 ```
