@@ -16,7 +16,7 @@ make up
 
 ## Restart the service
 ```
-make restart
+make restart	
 ```
 ## Stop the service without deleting containers
 ```
@@ -40,3 +40,10 @@ For example, if you use the default configurations and want to submit consumer_s
 docker exec -it demo-spark-master spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.1,io.delta:delta-core_2.12:2.0.0 scripts/consumer_spark_minio.py
 ```
 
+## Use Spark Notebook
+To use Spark Notebook, follow these steps:
+1. Access Spark Notebook UI via localhost:8888
+2. Get the token:
+- Read demo-spark-notebook token by docker logs demo-spark-notebook
+- Fill the Token to the required field in the UI 
+3. Run the notebooks. 

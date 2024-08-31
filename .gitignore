@@ -5,3 +5,9 @@ data/img/large files/*
 minio/storage/*
 scripts/.env
 spark/scripts/
+hive/hive-db
+hive/warehouse
+scripts/.ipynb_checkpoints/
+scripts/spark-warehouse/
+
+
