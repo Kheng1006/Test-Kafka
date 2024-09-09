@@ -9,5 +9,8 @@ hive/hive-db
 hive/warehouse
 scripts/.ipynb_checkpoints/
 scripts/spark-warehouse/
+scripts/derby.log
+scripts/metastore_db/
+postgres/db/*
 
 
