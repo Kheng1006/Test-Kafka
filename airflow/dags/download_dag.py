@@ -15,7 +15,7 @@ from minio.error import S3Error
 
 # load_dotenv()
 
-dotenv_path = '/google.env'
+dotenv_path = '/airflow/google.env'
 load_dotenv(dotenv_path=dotenv_path)
 
 SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
