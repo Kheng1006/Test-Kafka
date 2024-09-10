@@ -12,5 +12,12 @@ airflow/dags/__pycache__/
 drive_fetch/venv/
 scripts/spark-warehouse/
 scripts/.ipynb_checkpoints/
+hive/hive-db
+hive/warehouse
+scripts/.ipynb_checkpoints/
+scripts/spark-warehouse/
+scripts/derby.log
+scripts/metastore_db/
+postgres/db/
 
 

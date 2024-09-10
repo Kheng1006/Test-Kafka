@@ -1,0 +1,81 @@
+services:
+  postgres:
+    image: postgres:13.16
+    hostname: demo-hive-postgres
+    container_name: demo-hive-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - '5433:5432'
+    volumes:
+      - ./hive-db:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 80s  
+    networks:
+      - test-network
+
+  metastore:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    container_name: demo-hive-metastore
+    hostname: demo-hive-metastore
+    environment:
+      DB_DRIVER: postgres
+      SERVICE_NAME: 'metastore'
+      SERVICE_OPTS: '-Xmx1G -Djavax.jdo.option.ConnectionDriverName=org.postgresql.Driver
+                     -Djavax.jdo.option.ConnectionURL=jdbc:postgresql://demo-hive-postgres:5432/${POSTGRES_DB}
+                     -Djavax.jdo.option.ConnectionUserName=${POSTGRES_USER}
+                     -Djavax.jdo.option.ConnectionPassword=${POSTGRES_PASSWORD}'
+    ports:
+        - '9083:9083'
+    volumes:
+        - ./warehouse:/opt/hive/data/warehouse
+    healthcheck:
+      test: "netstat -lpn | grep 9083"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - test-network
+
+  hiveserver2:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    depends_on:
+      metastore:
+        condition: service_healthy
+    container_name: demo-hiveserver2
+    hostname: demo-hiveserver2
+    environment:
+      HIVE_SERVER2_THRIFT_PORT: 10000
+      SERVICE_OPTS: '-Xmx1G -Dhive.metastore.uris=thrift://demo-hive-metastore:9083'
+      IS_RESUME: 'true'
+      SERVICE_NAME: 'hiveserver2'
+    ports:
+      - '10000:10000'
+      - '10002:10002'
+    volumes:
+      - ./warehouse:/opt/hive/data/warehouse
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:10002"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - test-network
+
+networks:
+  test-network:
+    name: test-network
+    external: true

@@ -1,0 +1,20 @@
+services: 
+  trino:
+    image: "trinodb/trino:454"
+    hostname: demo-trino
+    container_name: demo-trino
+    ports:
+      - "8090:8080"
+    volumes:
+      - ./config/etc:/usr/lib/trino/etc:ro
+      - ./config/catalog:/etc/trino/catalog
+    environment:
+      - HTTP_SERVER_AUTHENTICATION_TYPE=PASSWORD
+      - HTTP_SERVER_AUTHENTICATION_PASSWORD_AUTHENTICATOR=org.apache.trino.server.security.PasswordAuthenticator
+    networks:
+      - test-network
+
+networks:
+  test-network:
+    name: test-network
+    external: true
