@@ -1,4 +1,4 @@
-myenv/*
+myenv/
 venv/*
 hadoop/hadoop_*
 data/img/large files/*
@@ -7,3 +7,10 @@ scripts/.env
 spark/scripts/
 drive_fetch/.env
 airflow/google.env
+airflow/logs/
+airflow/dags/__pycache__/
+drive_fetch/venv/
+scripts/spark-warehouse/
+scripts/.ipynb_checkpoints/
+
+

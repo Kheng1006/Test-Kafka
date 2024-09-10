@@ -20,10 +20,10 @@ dotenv_path = '/airflow/google.env'
 load_dotenv(dotenv_path=dotenv_path)
 
 SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
-MINIO_ENDPOINT = os.getenv('MINIO_ENDPOINT')
-MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY")
-MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY")
-BUCKET_NAME = os.getenv('MINIO_BUCKET')
+MINIO_ENDPOINT = 'localhost:9000'
+MINIO_ACCESS_KEY = 'minio_user'
+MINIO_SECRET_KEY = 'minio_password'
+BUCKET_NAME = 'drive-fetch'
 CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv('CLIENT_SECRET')
 REFRESH_TOKEN = os.getenv('REFRESH_TOKEN')
