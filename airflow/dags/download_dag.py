@@ -3,8 +3,9 @@ from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
 import os
 import io
-from dotenv import load_dotenv
+from dotenv import load_dotenv, set_key
 from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
 from google.auth.transport.requests import Request
@@ -37,16 +38,46 @@ minio_client = Minio(
 )
 
 def authenticate_gdrive():
-    creds = Credentials(
-        None,
-        refresh_token=REFRESH_TOKEN,
-        client_id=CLIENT_ID,
-        client_secret=CLIENT_SECRET,
-        token_uri='https://oauth2.googleapis.com/token'
-    )
+    # creds = Credentials(
+    #     None,
+    #     refresh_token=REFRESH_TOKEN,
+    #     client_id=CLIENT_ID,
+    #     client_secret=CLIENT_SECRET,
+    #     token_uri='https://oauth2.googleapis.com/token'
+    # )
 
-    if creds and creds.expired and creds.refresh_token:
-        creds.refresh(Request())
+    # if creds and creds.expired and creds.refresh_token:
+    #     creds.refresh(Request())
+
+    creds = None
+
+    if REFRESH_TOKEN:
+        creds = Credentials(
+            None,
+            refresh_token=REFRESH_TOKEN,
+            client_id=CLIENT_ID,
+            client_secret=CLIENT_SECRET,
+            token_uri='https://oauth2.googleapis.com/token'
+        )
+        if creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+    else:
+        # Perform OAuth2 flow for the first time to get credentials
+        flow = InstalledAppFlow.from_client_config({
+            "installed": {
+                "client_id": CLIENT_ID,
+                "client_secret": CLIENT_SECRET,
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://oauth2.googleapis.com/token",
+            }
+        }, SCOPES)
+        creds = flow.run_local_server(port=0)
+        
+        # Save the refresh token to the .env file
+        refresh_token = creds.refresh_token
+        if refresh_token:
+            set_key(dotenv_path, "REFRESH_TOKEN", refresh_token)
+            print(f"New refresh token saved to .env: {refresh_token}")
 
     return build('drive', 'v3', credentials=creds)
 
