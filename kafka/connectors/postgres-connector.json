@@ -1,0 +1,30 @@
+{
+     "name": "postgresql-source-connector",
+     "config": {
+          "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
+          "tasks.max": "1",
+          "connection.url": "abc",
+          "table.whitelist": "test_table",
+          "mode": "incrementing",
+          "incrementing.column.name": "id",
+          "topic.prefix": "postgres-",
+          "poll.interval.ms": "10000",
+          "validate.non.null": "false",
+          "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+          "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+          "startup.mode": "earliest",
+           
+          "transforms": "filterExample",
+          "transforms.filterExample.type": "io.confluent.connect.transforms.Filter$Value",
+          "transforms.filterExample.filter.condition": "$[?(@.name != \"Huy\")]",
+          "transforms.filterExample.filter.type": "include", 
+          "transforms.filterExample.missing.or.null.behavior": "exclude",
+
+          "errors.tolerance": "all", 
+          "errors.log.enable": "true", 
+          "errors.log.include.messages": "true", 
+          "errors.deadletterqueue.topic.name": "postgresql-source-connector-dlq", 
+          "errors.deadletterqueue.context.headers.enable": "true" 
+     }
+}
+   
