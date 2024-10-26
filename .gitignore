@@ -19,5 +19,6 @@ scripts/spark-warehouse/
 scripts/derby.log
 scripts/metastore_db/
 postgres/db/
+kafka/plugins/kafka-connect-mqtt*
 
 

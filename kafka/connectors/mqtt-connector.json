@@ -1,19 +1,14 @@
 {
-     "name": "postgresql-source-connector",
+     "name": "mqtt-source-connector",
      "config": {
-          "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
+          "connector.class": "io.lenses.streamreactor.connect.mqtt.source.MqttSourceConnector",
           "tasks.max": "1",
-          "connection.url": "abc",
-          "table.whitelist": "test_table",
-          "mode": "incrementing",
-          "incrementing.column.name": "id",
-          "topic.prefix": "postgres-",
-          "poll.interval.ms": "5000",
-          "validate.non.null": "false",
+          "connect.mqtt.hosts": "tcp://broker.hivemq.com:1883",
+          "connect.mqtt.kcql": "INSERT INTO mqtt_topic SELECT * FROM florus-test-1",
+          "connect.mqtt.service.quality": "1", 
           "key.converter": "org.apache.kafka.connect.storage.StringConverter",
           "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-          "startup.mode": "earliest",
-           
+
           "transforms": "filterExample",
           "transforms.filterExample.type": "io.confluent.connect.transforms.Filter$Value",
           "transforms.filterExample.filter.condition": "$[?(@.name == \"Huy\")]",
